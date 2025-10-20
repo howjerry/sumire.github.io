@@ -1,0 +1,466 @@
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spec Coding: AI 時代的協作契約 - Aurora Architect</title>
+    <!-- 必要的 CDN 依賴 -->
+    <!-- 修正: 移除 CDN 連結周圍的方括號，確保資源能正確載入 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/4.0.21/fullpage.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/4.0.21/fullpage.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <style>
+        /* ------------------------------------- */
+        /* 1. Aurora Architect - 核心 CSS 定義與動效 */
+        /* ------------------------------------- */
+        :root {
+            --color-red: #E31937; /* 特斯拉紅 */
+            --color-dark: #000000; /* 純黑背景 */
+            --golden-ratio-width: 61.8%; /* 黃金比率 */
+            --transition-duration: 0.8s;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background-color: var(--color-dark);
+            color: #fff;
+            overflow: hidden; /* 由 fullpage.js 管理滾動 */
+        }
+
+        /* 黃金比率內容容器 (Content Wrapper) */
+        .content-wrapper {
+            width: var(--golden-ratio-width);
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+            height: 100%; /* 確保內容區塊撐滿 Section */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* 響應式調整 */
+        @media (max-width: 1024px) {
+            .content-wrapper {
+                width: 90%; /* 平板電腦調整寬度 */
+            }
+        }
+        @media (max-width: 640px) {
+            .content-wrapper {
+                width: 95%; /* 手機調整寬度 */
+                padding: 10px;
+            }
+        }
+
+        /* Mega Text 視覺排版 */
+        .mega-text {
+            font-size: clamp(3.5rem, 8vw, 7rem);
+            font-weight: 800;
+            line-height: 1.1;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(227, 25, 55, 0.5);
+        }
+
+        /* Aurora 輝光效果 - 在 Hero 區塊使用偽元素實現頂部光暈 */
+        .hero-section {
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80vw;
+            height: 80vh;
+            /* 柔和的紅色徑向漸變 */
+            background: radial-gradient(circle at 50% 0%, rgba(227, 25, 55, 0.4), transparent 60%);
+            filter: blur(80px); /* 模糊處理 */
+            opacity: 0.4;
+            transition: opacity 1s ease-in-out;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* 動效定義: Apple Style Fade In Up */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in-up {
+            animation: fadeInUp var(--transition-duration) ease-out forwards;
+            opacity: 0;
+        }
+
+        /* 動效定義: Scale In */
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .scale-in {
+            animation: scaleIn var(--transition-duration) ease-out forwards;
+            opacity: 0;
+        }
+
+        /* 紅色高亮透明度漸變 */
+        .highlight-fade {
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-out;
+            opacity: 0.3; /* 初始較低透明度 */
+        }
+        .active .highlight-fade {
+            opacity: 1; /* 激活時高亮 */
+        }
+
+        /* fullpage.js 導航點樣式 */
+        #fp-nav ul li a span {
+            background: var(--color-red) !important;
+        }
+        #fp-nav ul li .fp-tooltip {
+            color: #fff !important;
+        }
+
+        /* ECharts 容器 */
+        #trust-chart {
+            width: 100%;
+            height: 400px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .red-button {
+            background-color: var(--color-red);
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 9999px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(227, 25, 55, 0.4);
+        }
+        .red-button:hover {
+            background-color: #ff385b;
+            box-shadow: 0 6px 30px rgba(227, 25, 55, 0.8);
+            transform: translateY(-2px);
+        }
+
+        /* Section 4 Process Steps 樣式 */
+        .step-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(227, 25, 55, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: left;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+        }
+        .step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(227, 25, 55, 0.5);
+        }
+        .step-number {
+            color: var(--color-red);
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        .step-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 10px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="fullpage">
+
+        <!-- Section 1: Hero - AI 時代的協作契約 -->
+        <div class="section hero-section" data-anchor="hero">
+            <div class="content-wrapper">
+                <p class="text-xl text-gray-400 mb-6 scale-in" style="animation-delay: 0.1s;">AI Era Innovation</p>
+                <h1 class="mega-text fade-in-up" style="animation-delay: 0.4s;">
+                    Spec Coding
+                    <span class="text-transparent block bg-clip-text bg-gradient-to-r from-red-600 to-red-300">
+                        AI 時代的協作契約
+                    </span>
+                </h1>
+                <p class="text-2xl mt-8 text-gray-300 fade-in-up" style="animation-delay: 0.7s;">
+                    從「模糊意圖」到「精確執行」：將 AI 轉變為可擴展、可信賴的工程夥伴。
+                </p>
+            </div>
+        </div>
+
+        <!-- Section 2: Core Features - 工程師的價值轉移 (Content 3 & 1) -->
+        <div class="section" data-anchor="features">
+            <div class="content-wrapper">
+                <h2 class="text-5xl font-bold mb-16 highlight-fade">
+                    <i class="fa-solid fa-rocket mr-3 text-red-600"></i>
+                    工程師的價值轉移：從實作到指導
+                </h2>
+                
+                <div class="grid md:grid-cols-3 gap-10 text-left">
+                    
+                    <!-- Feature 1: 價值轉移 -->
+                    <div class="p-6 rounded-xl border border-gray-800 bg-gray-900 scale-in" style="animation-delay: 0.1s;">
+                        <div class="text-3xl text-red-500 mb-4"><i class="fa-solid fa-location-arrow"></i></div>
+                        <h3 class="text-2xl font-semibold mb-3 text-red-300">指導 (Steering) 優先</h3>
+                        <p class="text-gray-400">核心工作從耗時的「實作 (Implementation)」轉向「指導 (Steering)」與「驗證 (Verification)」。</p>
+                        <p class="text-sm mt-3 text-red-600 font-medium">關鍵：清晰定義問題</p>
+                    </div>
+
+                    <!-- Feature 2: 技能要求 -->
+                    <div class="p-6 rounded-xl border border-gray-800 bg-gray-900 scale-in" style="animation-delay: 0.3s;">
+                        <div class="text-3xl text-red-500 mb-4"><i class="fa-solid fa-brain"></i></div>
+                        <h3 class="text-2xl font-semibold mb-3 text-red-300">深層工程判斷力</h3>
+                        <p class="text-gray-400">需要更深的工程判斷力，以理解底層邏輯，才能寫出讓 AI 產生高品質程式碼的規格。</p>
+                        <p class="text-sm mt-3 text-red-600 font-medium">只有契約才能擴展</p>
+                    </div>
+
+                    <!-- Feature 3: 未來競爭力 -->
+                    <div class="p-6 rounded-xl border border-gray-800 bg-gray-900 scale-in" style="animation-delay: 0.5s;">
+                        <div class="text-3xl text-red-500 mb-4"><i class="fa-solid fa-ranking-star"></i></div>
+                        <h3 class="text-2xl font-semibold mb-3 text-red-300">更具競爭力的開發者</h3>
+                        <p class="text-gray-400">未來十年，「能清晰定義需求並審查 AI 產出」的開發者，將比「只會寫程式碼」的開發者更具競爭力。</p>
+                        <p class="text-sm mt-3 text-red-600 font-medium">定義比產出更重要</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section 3: ECharts Trend - AI 信任度危機與規格驅動的必然性 (Content 1) -->
+        <div class="section" data-anchor="trust-crisis">
+            <div class="content-wrapper">
+                <h2 class="text-5xl font-bold mb-4 highlight-fade">
+                    <i class="fa-solid fa-chart-line mr-3 text-red-600"></i>
+                    AI 信任度危機與規格驅動的必然性
+                </h2>
+                <p class="text-xl text-gray-400 mb-10 fade-in-up" style="animation-delay: 0.3s;">
+                    **Vibe Coding** 的不可預測性導致 Stack Overflow 調查中開發者信任度下降。
+                </p>
+                
+                <!-- ECharts 圖表容器 -->
+                <div id="trust-chart" class="scale-in" style="animation-delay: 0.5s;"></div>
+
+                <div class="mt-8 text-xl text-red-400 font-medium fade-in-up" style="animation-delay: 0.7s;">
+                    規格不是約束，而是放大 AI 能力的槓桿。
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Process Steps - 工具選型與專案生命週期 (Content 2) -->
+        <div class="section" data-anchor="tool-lifecycle">
+            <div class="content-wrapper">
+                <h2 class="text-5xl font-bold mb-12 highlight-fade">
+                    <i class="fa-solid fa-wrench mr-3 text-red-600"></i>
+                    工具選型策略：專案生命週期決定一切
+                </h2>
+                <p class="text-xl text-gray-400 mb-10 fade-in-up" style="animation-delay: 0.2s;">
+                    不要陷入「哪個工具最強」的陷阱，選擇最適合當前階段的契約式開發方案。
+                </p>
+
+                <div class="grid md:grid-cols-3 gap-8 w-full max-w-4xl">
+                    
+                    <!-- Step 1: 0 -> 1 (MVP) -->
+                    <div class="step-card fade-in-up" style="animation-delay: 0.4s;">
+                        <!-- 將 $\to$ 改為 TO -->
+                        <div class="step-number">0 TO 1</div>
+                        <div class="step-name">快速驗證：SpecKit</div>
+                        <p class="text-gray-400 mt-2 text-sm">適用於產品的初創和快速驗證 MVP 階段，以速度和靈活性為優先考量。</p>
+                    </div>
+
+                    <!-- Step 2: 1 -> 10 (Iteration) -->
+                    <div class="step-card fade-in-up" style="animation-delay: 0.6s;">
+                        <!-- 將 $\to$ 改為 TO -->
+                        <div class="step-number">1 TO 10</div>
+                        <div class="step-name">功能迭代：OpenSpec</div>
+                        <p class="text-gray-400 mt-2 text-sm">適合產品穩定後的功能迭代與管理階段，提供更好的擴展性和模塊化管理。</p>
+                    </div>
+
+                    <!-- Step 3: Enterprise -->
+                    <div class="step-card fade-in-up" style="animation-delay: 0.8s;">
+                        <div class="step-number">10+</div>
+                        <div class="step-name">雲原生：Kiro</div>
+                        <p class="text-gray-400 mt-2 text-sm">為重度雲原生用戶和大型團隊設計，提供企業級的一體化和深度整合能力。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 5: CTA - 行動呼籲 -->
+        <div class="section" data-anchor="cta">
+            <div class="content-wrapper">
+                <h2 class="mega-text text-white mb-6 fade-in-up" style="animation-delay: 0.1s;">
+                    <span class="block text-red-600">Prepare</span> for the Future.
+                </h2>
+                <p class="text-2xl text-gray-300 mb-12 fade-in-up" style="animation-delay: 0.4s;">
+                    立即獲取 Spec Coding 白皮書，掌握下一代軟體工程的競爭力。
+                </p>
+                <div class="fade-in-up" style="animation-delay: 0.7s;">
+                    <button class="red-button mr-6">
+                        <i class="fa-solid fa-download mr-2"></i>
+                        下載白皮書 (Whitepaper)
+                    </button>
+                    <button class="red-button bg-transparent border border-red-600 hover:bg-red-900/20">
+                        <i class="fa-solid fa-handshake mr-2"></i>
+                        聯繫工程專家
+                    </button>
+                </div>
+                <p class="text-sm text-gray-700 mt-16">&copy; 2025 Aurora Architect Spec-Driven Development</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // -------------------------------------
+        // 2. JavaScript 邏輯 (fullpage.js & ECharts)
+        // -------------------------------------
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // 全螢幕滾動 fullpage.js 初始化
+            // 啟用 Apple 風格動效的 onLeave 回調
+            try {
+                // 確保 fullpage 構造函數在 global scope 可用
+                if (typeof fullpage !== 'undefined') {
+                    new fullpage('#fullpage', {
+                        // 基本配置
+                        licenseKey: 'gplv3-license', // 使用 GPLv3 授權
+                        autoScrolling: true,
+                        scrollHorizontally: false,
+                        // 導航配置
+                        navigation: true,
+                        navigationPosition: 'right',
+                        navigationTooltips: ['英雄標題', '價值轉移', '信任危機', '工具選型', '行動呼籲'],
+                        showActiveTooltip: true,
+                        // 動效回調
+                        onLeave: function(origin, destination, direction) {
+                            // 重置目標區塊的動效 (讓它們在進入時重新播放)
+                            const elementsToAnimate = destination.item.querySelectorAll('.fade-in-up, .scale-in');
+                            elementsToAnimate.forEach(el => {
+                                el.style.opacity = 0;
+                                el.style.animation = 'none';
+                                el.offsetHeight; // 觸發 DOM 重繪
+                                el.style.animation = ''; // 清除 animation: none
+                            });
+                        },
+                        afterLoad: function(origin, destination, direction) {
+                            // 確保在載入後運行動畫
+                            const elementsToAnimate = destination.item.querySelectorAll('.fade-in-up, .scale-in');
+                            elementsToAnimate.forEach((el, index) => {
+                                // 重新應用 delay 和 animation
+                                el.style.animationDelay = (parseFloat(el.style.animationDelay) || 0) + 's';
+                                el.style.animationPlayState = 'running';
+                            });
+                        }
+                    });
+                } else {
+                    console.error("FullPage.js 構造函數未定義。");
+                }
+            } catch (error) {
+                console.error("FullPage.js 初始化失敗，請檢查 CDN 連結或配置。", error);
+            }
+            
+            // ECharts 圖表初始化
+            const chartDom = document.getElementById('trust-chart');
+            // 確保 echarts 函式庫已載入
+            if (chartDom && typeof echarts !== 'undefined') {
+                const myChart = echarts.init(chartDom);
+                let option;
+
+                // 數據：2023 年信任度 70%，2025 年下降至 60%
+                option = {
+                    title: {
+                        text: '開發者對 AI 程式碼的信任度',
+                        subtext: 'Stack Overflow Survey (模擬數據)',
+                        left: 'center',
+                        textStyle: { color: '#fff', fontSize: 24 },
+                        subtextStyle: { color: '#aaa' }
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: { type: 'shadow' }
+                    },
+                    legend: {
+                        data: ['信任度', 'Spec Coding 導入後'],
+                        bottom: 0,
+                        textStyle: { color: '#ccc' }
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '15%',
+                        containLabel: true
+                    },
+                    xAxis: [
+                        {
+                            type: 'category',
+                            data: ['2023 (Vibe Coding)', '2025 (現狀)', '2027 (目標/Spec Coding)'],
+                            axisTick: { alignWithLabel: true },
+                            axisLine: { lineStyle: { color: '#444' } },
+                            axisLabel: { color: '#999' }
+                        }
+                    ],
+                    yAxis: [
+                        {
+                            type: 'value',
+                            min: 0,
+                            max: 100,
+                            interval: 20,
+                            name: '信任度 (%)',
+                            axisLine: { lineStyle: { color: '#444' } },
+                            axisLabel: {
+                                color: '#999',
+                                formatter: '{value} %'
+                            },
+                            splitLine: { lineStyle: { color: '#1a1a1a' } }
+                        }
+                    ],
+                    series: [
+                        {
+                            name: '信任度',
+                            type: 'bar',
+                            barWidth: '30%',
+                            data: [
+                                { value: 70, itemStyle: { color: 'rgba(227, 25, 55, 0.7)' } },
+                                { value: 60, itemStyle: { color: 'rgba(227, 25, 55, 1)' } },
+                                { value: 90, itemStyle: { color: '#2ecc71' } } // Spec Coding 導入後預期提升
+                            ],
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '{c}%',
+                                color: '#fff',
+                                fontWeight: 'bold'
+                            }
+                        }
+                    ]
+                };
+
+                myChart.setOption(option);
+
+                // ECharts 響應式：監聽窗口大小變化並重繪
+                window.addEventListener('resize', () => {
+                    myChart.resize();
+                });
+            } else if (chartDom) {
+                console.error("ECharts 容器 #trust-chart 找到，但 ECharts 函式庫未定義。");
+            } else {
+                console.error("ECharts 容器 #trust-chart 未找到.");
+            }
+        });
+    </script>
+
+</body>
+</html>
