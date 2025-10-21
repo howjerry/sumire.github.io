@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Karpathy 的学霸秘籍 | 单页滚动网站</title>
+
+  <style>
+    /* ═══════════════════════════════════
+       CSS Reset & 全域样式
+       ═══════════════════════════════════ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans TC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #FFFFFF;
+      color: #000000;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ═══════════════════════════════════
+       Header 导航栏
+       ═══════════════════════════════════ */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0);
+      transition: background 0.3s ease, backdrop-filter 0.3s ease;
+      padding: 20px 0;
+    }
+
+    header.scrolled {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      flex-wrap: wrap;
+      padding: 0 40px;
+    }
+
+    nav a {
+      font-size: 15px;
+      font-weight: 500;
+      color: #666666;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      position: relative;
+      padding: 5px 0;
+    }
+
+    nav a.active {
+      color: #000000;
+      font-weight: 600;
+    }
+
+    nav a.active::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: 30px;
+      height: 2px;
+      background: #000000;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        width: 0;
+        opacity: 0;
+      }
+      to {
+        width: 30px;
+        opacity: 1;
+      }
+    }
+
+    nav a:hover {
+      color: #000000;
+    }
+
+    /* ═══════════════════════════════════
+       Main Content 主要内容区
+       ═══════════════════════════════════ */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 60px;
+    }
+
+    section {
+      min-height: 100vh;
+      padding-top: 120px;
+      margin-bottom: 80px;
+      position: relative;
+    }
+
+    /* 章节序号（大号数字装饰） */
+    .section-number {
+      position: sticky;
+      top: 50%;
+      transform: translateY(-50%);
+      left: -180px;
+      font-size: 180px;
+      font-weight: 700;
+      color: rgba(0, 0, 0, 0.08);
+      line-height: 1;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* 标题样式 */
+    h2 {
+      font-size: 64px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 24px;
+      color: #000000;
+    }
+
+    h3 {
+      font-size: 32px;
+      font-weight: 500;
+      line-height: 1.4;
+      margin-bottom: 40px;
+      color: #333333;
+    }
+
+    /* 段落与内容项 */
+    p, .content-item {
+      font-size: 20px;
+      font-weight: 400;
+      line-height: 1.8;
+      margin-bottom: 30px;
+      color: #222222;
+    }
+
+    .content-item {
+      padding-left: 30px;
+      position: relative;
+    }
+
+    .content-item::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      font-size: 24px;
+      color: #000000;
+    }
+
+    /* 强调文字 */
+    .emphasis {
+      font-size: 24px;
+      font-weight: 600;
+      color: #000000;
+      margin: 40px 0;
+      padding-left: 20px;
+      border-left: 4px solid #000000;
+    }
+
+    /* 引用样式 */
+    .quote {
+      font-size: 28px;
+      font-weight: 500;
+      font-style: italic;
+      color: #333333;
+      margin: 50px 0;
+      padding: 30px 40px;
+      border-left: 4px solid #000000;
+      background: rgba(0, 0, 0, 0.02);
+    }
+
+    /* ═══════════════════════════════════
+       Footer 底部区域
+       ═══════════════════════════════════ */
+    footer {
+      text-align: center;
+      padding: 100px 60px;
+      background: linear-gradient(to bottom, #FFFFFF, #F5F5F5);
+    }
+
+    footer h2 {
+      font-size: 48px;
+      margin-bottom: 30px;
+    }
+
+    footer p {
+      font-size: 20px;
+      color: #666666;
+      margin-bottom: 50px;
+    }
+
+    /* CTA 按钮 */
+    .cta-button {
+      display: inline-block;
+      padding: 18px 48px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #FFFFFF;
+      background: #222222;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.3) 50%,
+        rgba(255,255,255,0) 100%
+      );
+      transform: skewX(-25deg);
+      transition: left 0.6s ease;
+    }
+
+    .cta-button:hover {
+      background: #000000;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .cta-button:hover::before {
+      left: 150%;
+    }
+
+    /* ═══════════════════════════════════
+       响应式设计（Mobile）
+       ═══════════════════════════════════ */
+    @media (max-width: 767px) {
+      main {
+        padding: 0 24px;
+      }
+
+      section {
+        padding-top: 100px;
+        margin-bottom: 60px;
+      }
+
+      .section-number {
+        font-size: 80px;
+        left: 20px;
+        opacity: 0.5;
+      }
+
+      h2 {
+        font-size: 40px;
+        margin-bottom: 16px;
+      }
+
+      h3 {
+        font-size: 24px;
+        margin-bottom: 24px;
+      }
+
+      p, .content-item {
+        font-size: 18px;
+        line-height: 1.7;
+        margin-bottom: 24px;
+      }
+
+      .emphasis {
+        font-size: 20px;
+        padding-left: 16px;
+        border-left-width: 3px;
+      }
+
+      .quote {
+        font-size: 22px;
+        padding: 20px 24px;
+        margin: 30px 0;
+      }
+
+      nav {
+        gap: 20px;
+        padding: 0 20px;
+      }
+
+      nav a {
+        font-size: 13px;
+      }
+
+      footer {
+        padding: 60px 24px;
+      }
+
+      footer h2 {
+        font-size: 32px;
+      }
+
+      footer p {
+        font-size: 16px;
+      }
+    }
+
+    /* ═══════════════════════════════════
+       动画辅助类别
+       ═══════════════════════════════════ */
+    .fade-in {
+      opacity: 0;
+    }
+
+    .slide-up {
+      transform: translateY(30px);
+      opacity: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ═══════════════════════════════════
+       Header 导航栏
+       ═══════════════════════════════════ -->
+  <header id="header">
+    <nav>
+      <a href="#section1" class="nav-link">开场</a>
+      <a href="#section2" class="nav-link">睡眠神器</a>
+      <a href="#section3" class="nav-link">备考大局观</a>
+      <a href="#section4" class="nav-link">真题力量</a>
+      <a href="#section5" class="nav-link">协作艺术</a>
+      <a href="#section6" class="nav-link">刷题时间</a>
+      <a href="#section7" class="nav-link">考试当天</a>
+      <a href="#section8" class="nav-link">考场策略</a>
+      <a href="#section9" class="nav-link">阅卷思维</a>
+      <a href="#section10" class="nav-link">终极智慧</a>
+    </nav>
+  </header>
+
+  <!-- ═══════════════════════════════════
+       Main Content 主要内容
+       ═══════════════════════════════════ -->
+  <main>
+    <!-- Section 1: 开场 -->
+    <section id="section1">
+      <div class="section-number">01</div>
+      <h2>学霸的秘密武器</h2>
+      <h3>来自 AI 大神 Andrej Karpathy 的实战经验</h3>
+
+      <p class="content-item">如果你想在大学课程里取得好成绩，这里有一些久经考验的经验法则。</p>
+
+      <p class="content-item">Andrej Karpathy——特斯拉前 AI 总监、OpenAI 创始成员，一个「考得还不错」的学霸，总结了他身经百战后的考试心得。</p>
+
+      <div class="quote">
+        "没人会在乎你的分数，除非你的分数烂到家了。最聪明的学生，是所有课都拿 85% 的人。"
+      </div>
+
+      <p>这份指南不仅关于如何考试，更关于如何在有限的时间里，做出最聪明的选择。</p>
+    </section>
+
+    <!-- Section 2: 睡眠神器 -->
+    <section id="section2">
+      <div class="section-number">02</div>
+      <h2>睡眠神器</h2>
+      <h3>大脑的夜间魔法</h3>
+
+      <div class="emphasis">
+        千万别熬通宵。睡眠是"神器"。
+      </div>
+
+      <p class="content-item">对 Karpathy 来说，7.5 小时是最佳睡眠时间，底线是 4 小时。这不是玄学，这是生理学。</p>
+
+      <p class="content-item">晚上卡住 1 小时都想不明白的问题，早上起来 5 分钟就搞定了——这种事他经历过好几次。</p>
+
+      <div class="quote">
+        "大脑会在夜间把那些'摇摇欲坠'的短期记忆，'提交'（commits）转化成稳定的长期记忆。"
+      </div>
+
+      <p>所以，任何大考，都要提前好几天开始复习，哪怕每天只学一会儿。这样就能让大脑有足够多的夜晚去"消化"这些知识。</p>
+
+      <p class="content-item">去上辅导课或复习课，就算课很烂也要去。重点是，它们能"逼"着你去思考这些内容。</p>
+    </section>
+
+    <!-- Section 3: 备考大局观 -->
+    <section id="section3">
+      <div class="section-number">03</div>
+      <h2>备考的大局观</h2>
+      <h3>关键在于计划与条理性</h3>
+
+      <p class="content-item">给自己做个复习计划，就算最后没完全遵守也行。把所有需要掌握的知识点搞清楚，用项目符号逐条写下来。</p>
+
+      <div class="emphasis">
+        仔细评估每个点，想想搞定它需要多久。
+      </div>
+
+      <p>如果你不这么做，就很容易在开头花太多时间，结果最重要的后半部分内容因为时间不够，只能草草掠过。</p>
+
+      <p class="content-item">在开始复习前，一定要先看"往年真题"。特别是当这些卷子和你是同一个教授出的时候。</p>
+
+      <p class="content-item">这会给你"划重点"，告诉你该怎么复习。每个教授的"出题风格"都不一样。刚开始不用真的上手做题，但要仔细留意题型。</p>
+    </section>
+
+    <!-- Section 4: 真题的力量 -->
+    <section id="section4">
+      <div class="section-number">04</div>
+      <h2>真题的力量</h2>
+      <h3>"看懂了"和"能复现"完全是两码事</h3>
+
+      <div class="quote">
+        "你看着书上的公式、推导或证明，感觉'哎哟,全懂了'。好，现在合上书，你再写一遍试试。"
+      </div>
+
+      <p>你会发现这完全是另一回事，你甚至会惊讶自己居然写不出来！感觉这两件事用的是大脑里不同的"内存区"。</p>
+
+      <p class="content-item">一定要确保你真的能写出那些最重要的部分，并且能随心所欲地把它们重新推导一遍。</p>
+
+      <p class="content-item">对于数学这类学科：刷题 > 看书。复习到"差不多能开始做题"的程度就行了，然后通过刷题来"查漏补缺"。</p>
+
+      <div class="emphasis">
+        给自己做一张"小抄"（cheat sheet），哪怕考试不让带，也要做。
+      </div>
+
+      <p>"写下来"这个动作本身就很有帮助。你要把整个课程的精华"压缩"到一页或几页纸上。</p>
+    </section>
+
+    <!-- Section 5: 协作的艺术 -->
+    <section id="section5">
+      <div class="section-number">05</div>
+      <h2>协作的艺术</h2>
+      <h3>独自学习 vs 团队合作</h3>
+
+      <div class="emphasis">
+        一定要和同学合作，但要留到复习的"后半场"。
+      </div>
+
+      <p class="content-item">刚开始最好自己学，因为在复习初期，别人只会让你分心。</p>
+
+      <p class="content-item">但到了快复习完的时候，就该"合体"了：他们经常能帮你指出一些关键的"坑"，提出好问题，有时你还能"反客为主"教教他们。</p>
+
+      <div class="quote">
+        "别只跟'学霸'混。'学渣'们会缠着你给他们讲题，而你会发现，'教别人'这件事对你自己的理解超级有帮助。"
+      </div>
+
+      <p class="content-item">期末考前，至少要去一次教授的"答疑时间"。就算你没问题（现编一个！），也要去。</p>
+
+      <p>在一对一的交流中，教授有时会透露一些关于考试的"小道消息"。总的来说，让教授稍微认识你一下，总没坏处。</p>
+    </section>
+
+    <!-- Section 6: 刷题与时间 -->
+    <section id="section6">
+      <div class="section-number">06</div>
+      <h2>刷题与时间</h2>
+      <h3>提早复习的化学反应</h3>
+
+      <div class="emphasis">
+        提早复习！大脑吸收知识真的需要时间。
+      </div>
+
+      <p>很多看起来很难的东西，放一段时间再看，就变简单了。你最好给"期中考"留 3 天，给"期末考"留 6 天。</p>
+
+      <p class="content-item">如果状态实在太差，累得不行，紧急情况下，灌一瓶能量饮料。真管用。这纯粹是化学反应。</p>
+
+      <p class="content-item">去有"学习氛围"的地方复习。和一群都在学习的人待在一起，当只有你一个人在摸鱼时，你会感觉很不好意思。</p>
+
+      <div class="quote">
+        "背景噪音太大的地方很糟糕，有研究表明这对学习有负面影响。图书馆和自习室是最好的选择。"
+      </div>
+    </section>
+
+    <!-- Section 7: 考试当天 -->
+    <section id="section7">
+      <div class="section-number">07</div>
+      <h2>考试当天</h2>
+      <h3>咖啡、食物与最后冲刺</h3>
+
+      <div class="emphasis">
+        最佳饮食节奏：考前 2 小时，摄入咖啡和食物。
+      </div>
+
+      <p class="content-item">对 Karpathy 来说，考前立刻喝咖啡或吃东西，绝对不行。</p>
+
+      <p class="content-item">在任何有压力的场合前立刻喝咖啡，绝对不行。</p>
+
+      <p class="content-item">但一点咖啡都不喝，也不行。</p>
+
+      <p>他承认"咖啡"这一点可能因人而异，但你最好也琢磨一下自己的（生理）节奏。</p>
+
+      <div class="quote">
+        "考前最后一刻，要高强度'抱佛脚'。'短期记忆'是个好东西，别浪费了！"
+      </div>
+
+      <p>考前要尽可能地"猛学"。如果你非要休息，那就在考前 1 小时歇会儿，但一定要保证考前的 30-45 分钟，你在拼命复习。</p>
+    </section>
+
+    <!-- Section 8: 考场策略 -->
+    <section id="section8">
+      <div class="section-number">08</div>
+      <h2>考场策略</h2>
+      <h3>铅笔、扫题与跳题的哲学</h3>
+
+      <p class="content-item">考试一定要用铅笔。你得能擦掉你那些"瞎写的"答案。</p>
+
+      <div class="emphasis">
+        动笔前，快速扫一眼所有题目。
+      </div>
+
+      <p>每道题瞥个一两秒就够了。目的就是"吸收"所有关键词，对整张卷子的"体量"有个概念。</p>
+
+      <p class="content-item">考试时，先做简单的题。绝不允许自己在一道题上卡太久。跳过去，回头再说。</p>
+
+      <div class="quote">
+        "我经常跳题……有时候，我第一遍做下来，可能只完成了 30% 的题目。很神奇，有些题在你'热身'之后，就变简单了。"
+      </div>
+
+      <p class="content-item">注意每道题的"分值"。当你对自己的答案没把握时，分值能给你强烈的暗示。它还能告诉你该先做哪道题。</p>
+    </section>
+
+    <!-- Section 9: 阅卷人思维 -->
+    <section id="section9">
+      <div class="section-number">09</div>
+      <h2>阅卷人思维</h2>
+      <h3>沟通的艺术</h3>
+
+      <div class="emphasis">
+        卷面一定要保持整洁。你的卷子是人来判的！
+      </div>
+
+      <p>一个（被你龙飞凤舞的字搞得很）沮丧的阅卷人，会给你打低分。Karpathy 当学生时就怀疑这一点了，等他当了助教亲自去阅卷时，他对此深信不疑。</p>
+
+      <p class="content-item">一定要把答案"框"起来！特别是当答案周围有一堆推导过程的时候。这能让阅卷人一眼看到，给你满分，然后去看下一题。</p>
+
+      <div class="quote">
+        "永远。永远。永远。不要提前交卷。你肯定犯了某个'低级错误'（我跟你保证），找到它，改掉它。"
+      </div>
+
+      <p class="content-item">和阅卷人"沟通"。要向阅卷人展示，你懂的"比你写下来的要多"。必要时，大胆地给阅卷人"留纸条"。</p>
+
+      <p>阅卷人很多时候是在"拼命"帮你找分——你得让他们找得容易点。</p>
+    </section>
+
+    <!-- Section 10: 终极智慧 -->
+    <section id="section10">
+      <div class="section-number">10</div>
+      <h2>终极智慧</h2>
+      <h3>分数之外的人生</h3>
+
+      <p>本科生很容易陷入"隧道视野"——他们一门心思想拿高分。但残酷的事实是：</p>
+
+      <div class="quote">
+        "没人会在乎你的分数，除非你的分数烂到家了。"
+      </div>
+
+      <p class="content-item">你的时间是宝贵且有限的资源。在考试上，你要做的就是保证自己"别考砸"，然后，请立刻把你的注意力转移到"远比考试更重要"的事情上去。</p>
+
+      <div class="emphasis">
+        去获取"真刀真枪"的实战经验！
+      </div>
+
+      <p class="content-item">去参与真实的代码库、真实的项目、去解决那些"课程练习"之外的真实问题，这极其重要。</p>
+
+      <p class="content-item">那些了解你、能为你写一封"神级推荐信"的教授/大牛，他们极其重要。他们能在信里证明你拥有"主动性、热情和驱动力"。</p>
+
+      <p>想找工作？那就去暑期实习。想读研？那就去做科研！走出去，去创造点什么酷的东西。把过程好好记录下来，写成博客。</p>
+
+      <div class="quote">
+        "几年后，人们真正在乎的是这些东西。至于你的分数？那只是你一路上不得不应付的'小麻烦'。"
+      </div>
+    </section>
+  </main>
+
+  <!-- ═══════════════════════════════════
+       Footer 底部区域
+       ═══════════════════════════════════ -->
+  <footer>
+    <h2>开始你的学霸之路</h2>
+    <p>好好利用你的时间，祝你好运。</p>
+    <a href="https://karpathy.ai/" class="cta-button" target="_blank">访问 Andrej Karpathy 的博客</a>
+  </footer>
+
+  <!-- ═══════════════════════════════════
+       GSAP 库
+       ═══════════════════════════════════ -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+
+  <script>
+    // ═══════════════════════════════════
+    // GSAP 注册插件
+    // ═══════════════════════════════════
+    gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
+    // ═══════════════════════════════════
+    // Header 滚动效果
+    // ═══════════════════════════════════
+    const header = document.getElementById('header');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 100) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
+      }
+    });
+
+    // ═══════════════════════════════════
+    // 平滑滚动导航
+    // ═══════════════════════════════════
+    document.querySelectorAll('nav a').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        gsap.to(window, {
+          duration: 1.2,
+          scrollTo: {
+            y: targetId,
+            offsetY: 80
+          },
+          ease: "power3.inOut"
+        });
+      });
+    });
+
+    // ═══════════════════════════════════
+    // 导航连结自动高亮
+    // ═══════════════════════════════════
+    const sections = document.querySelectorAll('section');
+    const navLinks = document.querySelectorAll('nav a');
+
+    sections.forEach((section, index) => {
+      ScrollTrigger.create({
+        trigger: section,
+        start: "top center",
+        end: "bottom center",
+        onEnter: () => {
+          navLinks.forEach(link => link.classList.remove('active'));
+          navLinks[index].classList.add('active');
+        },
+        onEnterBack: () => {
+          navLinks.forEach(link => link.classList.remove('active'));
+          navLinks[index].classList.add('active');
+        }
+      });
+    });
+
+    // ═══════════════════════════════════
+    // 响应式动画判断（桌面端 vs 手机端）
+    // ═══════════════════════════════════
+    ScrollTrigger.matchMedia({
+      // 桌面端动画（屏幕宽度 >= 768px）
+      "(min-width: 768px)": function() {
+
+        // ───────────────────────────────────
+        // 动画 1: 章节序号 Pin（固定）
+        // ───────────────────────────────────
+        sections.forEach((section) => {
+          const sectionNumber = section.querySelector('.section-number');
+
+          ScrollTrigger.create({
+            trigger: section,
+            start: "top top",
+            end: "bottom top",
+            pin: sectionNumber,
+            pinSpacing: false
+          });
+
+          // 强化效果：Pin 期间轻微放大
+          gsap.to(sectionNumber, {
+            scale: 1.05,
+            opacity: 0.12,
+            ease: "power2.inOut",
+            scrollTrigger: {
+              trigger: section,
+              start: "top top",
+              end: "bottom top",
+              scrub: true
+            }
+          });
+        });
+
+        // ───────────────────────────────────
+        // 动画 2: 标题淡入滑动（Fade & Slide）
+        // ───────────────────────────────────
+        gsap.utils.toArray('section h2').forEach((heading) => {
+          gsap.from(heading, {
+            y: 30,
+            opacity: 0,
+            scale: 0.95,
+            duration: 1.2,
+            ease: "power4.out",
+            scrollTrigger: {
+              trigger: heading,
+              start: "top 80%",
+              toggleActions: "play none none none"
+            }
+          });
+        });
+
+        gsap.utils.toArray('section h3').forEach((subheading) => {
+          gsap.from(subheading, {
+            y: 20,
+            opacity: 0,
+            duration: 1,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: subheading,
+              start: "top 85%",
+              toggleActions: "play none none none"
+            }
+          });
+        });
+
+        // ───────────────────────────────────
+        // 动画 3: 内容分段延迟（Stagger）
+        // ───────────────────────────────────
+        sections.forEach((section) => {
+          const contentItems = section.querySelectorAll('.content-item, p:not(.content-item)');
+
+          gsap.from(contentItems, {
+            y: 20,
+            x: -20,
+            opacity: 0,
+            duration: 0.8,
+            ease: "power3.out",
+            stagger: 0.15,
+            scrollTrigger: {
+              trigger: section,
+              start: "top 75%"
+            }
+          });
+        });
+
+        // ───────────────────────────────────
+        // 动画 4: 引用与强调文字特效
+        // ───────────────────────────────────
+        gsap.utils.toArray('.quote').forEach((quote) => {
+          gsap.from(quote, {
+            clipPath: "inset(0 50% 0 50%)",
+            scale: 1.1,
+            opacity: 0.5,
+            duration: 1.5,
+            ease: "power3.inOut",
+            scrollTrigger: {
+              trigger: quote,
+              start: "top 70%"
+            }
+          });
+        });
+
+        gsap.utils.toArray('.emphasis').forEach((emphasis) => {
+          gsap.from(emphasis, {
+            x: -30,
+            opacity: 0,
+            duration: 1,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: emphasis,
+              start: "top 80%"
+            }
+          });
+        });
+
+        // ───────────────────────────────────
+        // 动画 5: Footer Zoom 效果
+        // ───────────────────────────────────
+        gsap.from('footer', {
+          scale: 0.9,
+          y: 50,
+          opacity: 0.7,
+          ease: "none",
+          scrollTrigger: {
+            trigger: 'footer',
+            start: "top bottom",
+            end: "center center",
+            scrub: true
+          }
+        });
+
+        // ───────────────────────────────────
+        // 动画 6: CTA 按钮进场
+        // ───────────────────────────────────
+        gsap.from('.cta-button', {
+          y: 30,
+          opacity: 0,
+          scale: 0.9,
+          duration: 1,
+          ease: "back.out(1.7)",
+          scrollTrigger: {
+            trigger: '.cta-button',
+            start: "top 90%"
+          }
+        });
+
+      },
+
+      // 手机端动画（屏幕宽度 < 768px）
+      "(max-width: 767px)": function() {
+
+        // 简化版：仅保留基础 Fade & Slide
+        gsap.utils.toArray('section h2').forEach((heading) => {
+          gsap.from(heading, {
+            y: 20,
+            opacity: 0,
+            duration: 0.8,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: heading,
+              start: "top 85%"
+            }
+          });
+        });
+
+        gsap.utils.toArray('.content-item, p').forEach((item) => {
+          gsap.from(item, {
+            y: 15,
+            opacity: 0,
+            duration: 0.6,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: item,
+              start: "top 90%"
+            }
+          });
+        });
+
+      }
+    });
+
+  </script>
+</body>
+</html>
