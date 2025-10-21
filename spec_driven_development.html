@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Spec-Driven Development：開發者與 AI 協作的新範式">
+    <title>Spec-Driven Development | 開發新紀元</title>
+
+    <!-- ========== 外部 CDN 依賴 ========== -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.1.2/fullpage.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- ========== 內嵌 CSS ========== -->
+    <style>
+        /* ==================== 1. CSS Reset ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 2. 全域樣式 ==================== */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+            color: #fff;
+            background: #000;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* ==================== 3. fullpage.js 基礎設定 ==================== */
+        .section {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ==================== 4. 黃金比率容器 ==================== */
+        .content-wrapper {
+            width: 61.8%;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+            padding: 2rem;
+        }
+
+        /* ==================== 5. Aurora 輝光效果 ==================== */
+        #hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            height: 80vh;
+            background: radial-gradient(circle at 50% 0%, rgba(227, 25, 55, 0.4), transparent 50%);
+            filter: blur(80px);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* 其他頁面的輝光效果（較淡） */
+        .section::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60%;
+            height: 60%;
+            background: radial-gradient(circle, rgba(227, 25, 55, 0.15), transparent 70%);
+            filter: blur(100px);
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        /* ==================== 6. 超大字體系統 ==================== */
+        .mega-text {
+            font-size: clamp(3.5rem, 8vw, 7rem);
+            font-weight: 800;
+            line-height: 1.1;
+            color: #fff;
+            letter-spacing: -0.02em;
+            margin-bottom: 1.5rem;
+        }
+
+        .large-text {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: #fff;
+            letter-spacing: -0.01em;
+            margin-bottom: 1.5rem;
+        }
+
+        .medium-text {
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-weight: 600;
+            line-height: 1.3;
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            font-size: clamp(1.2rem, 2.5vw, 2rem);
+            font-weight: 400;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+
+        .body-text {
+            font-size: clamp(1rem, 1.5vw, 1.25rem);
+            font-weight: 400;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 1.5rem;
+        }
+
+        /* ==================== 7. 紅色高亮系統 ==================== */
+        .highlight-red {
+            color: #E31937;
+            font-weight: 700;
+        }
+
+        .highlight-box {
+            background: rgba(227, 25, 55, 0.1);
+            border-left: 4px solid #E31937;
+            padding: 1.5rem 2rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+
+        /* ==================== 8. 動效定義 ==================== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 1s ease-out forwards;
+            opacity: 0;
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-out forwards;
+            opacity: 0;
+        }
+
+        .scale-in {
+            animation: scaleIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            opacity: 0;
+        }
+
+        /* ==================== 9. 數據卡片 ==================== */
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-number {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            color: #E31937;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: clamp(1rem, 1.5vw, 1.25rem);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* ==================== 10. 工具流程時間線 ==================== */
+        .timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .timeline-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #E31937, #A01020);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-right: 2rem;
+            box-shadow: 0 4px 20px rgba(227, 25, 55, 0.4);
+        }
+
+        .timeline-icon i {
+            font-size: 2rem;
+            color: #fff;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-title {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-phase {
+            font-size: 1rem;
+            color: #E31937;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .timeline-desc {
+            font-size: clamp(1rem, 1.5vw, 1.125rem);
+            color: rgba(255, 255, 255, 0.75);
+            line-height: 1.7;
+        }
+
+        /* ==================== 11. 價值對比卡片 ==================== */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .comparison-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .comparison-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #E31937, #A01020);
+        }
+
+        .comparison-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(227, 25, 55, 0.5);
+            box-shadow: 0 12px 40px rgba(227, 25, 55, 0.2);
+        }
+
+        .comparison-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .comparison-period {
+            font-size: 1rem;
+            color: #E31937;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+
+        .comparison-title {
+            font-size: clamp(1.25rem, 2vw, 1.5rem);
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+
+        .comparison-desc {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+        }
+
+        /* ==================== 12. 金句區塊 ==================== */
+        .quote-section {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .quote-icon {
+            font-size: 4rem;
+            color: #E31937;
+            margin-bottom: 2rem;
+            opacity: 0.5;
+        }
+
+        .quote-text {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            line-height: 1.4;
+            color: #fff;
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+
+        .quote-author {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+        }
+
+        /* ==================== 13. CTA 按鈕 ==================== */
+        .cta-container {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1.5rem 4rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, #E31937, #A01020);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 30px rgba(227, 25, 55, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .cta-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(227, 25, 55, 0.6);
+        }
+
+        .cta-subtitle {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 1.5rem;
+        }
+
+        /* ==================== 14. ECharts 容器 ==================== */
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin: 3rem 0;
+            position: relative;
+            z-index: 3;
+        }
+
+        /* ==================== 15. 列表樣式 ==================== */
+        .content-list {
+            margin: 2rem 0;
+        }
+
+        .content-list li {
+            font-size: clamp(1rem, 1.5vw, 1.125rem);
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .content-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #E31937;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        /* ==================== 16. 響應式設計 ==================== */
+        @media (max-width: 1024px) {
+            .content-wrapper {
+                width: 75%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-wrapper {
+                width: 90%;
+                padding: 1.5rem;
+            }
+
+            .mega-text {
+                font-size: clamp(2.5rem, 8vw, 4rem);
+            }
+
+            .timeline-item {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .timeline-icon {
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            .quote-text {
+                font-size: clamp(1.5rem, 6vw, 2.5rem);
+            }
+        }
+
+        /* ==================== 17. fullpage.js 導航點樣式 ==================== */
+        #fp-nav ul li a span,
+        .fp-slidesNav ul li a span {
+            background: rgba(255, 255, 255, 0.3);
+            width: 8px;
+            height: 8px;
+            margin: -4px 0 0 -4px;
+        }
+
+        #fp-nav ul li a.active span,
+        .fp-slidesNav ul li a.active span,
+        #fp-nav ul li:hover a.active span,
+        .fp-slidesNav ul li:hover a.active span {
+            background: #E31937;
+            width: 12px;
+            height: 12px;
+            margin: -6px 0 0 -6px;
+        }
+
+        /* ==================== 18. 輔助類別 ==================== */
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-1 { margin-bottom: 1rem; }
+        .mb-2 { margin-bottom: 2rem; }
+        .mb-3 { margin-bottom: 3rem; }
+
+        .mt-1 { margin-top: 1rem; }
+        .mt-2 { margin-top: 2rem; }
+        .mt-3 { margin-top: 3rem; }
+    </style>
+</head>
+<body>
+    <!-- ========== fullpage.js 結構 ========== -->
+    <div id="fullpage">
+
+        <!-- ==================== 第 1 頁：Hero ==================== -->
+        <div class="section" id="hero">
+            <div class="content-wrapper">
+                <h1 class="mega-text fade-in-up">Spec-Driven<br>Development</h1>
+                <p class="subtitle fade-in-up">開發者與 AI 協作的新範式</p>
+                <p class="body-text fade-in-up">在 AI 能力快速進化的時代，開發者的角色正在經歷深刻轉變。<br>這不是關於工具的選擇，而是關於思維方式的革命。</p>
+            </div>
+        </div>
+
+        <!-- ==================== 第 2 頁：第 1 點 - Spec Coding 必然性 ==================== -->
+        <div class="section" id="point1">
+            <div class="content-wrapper">
+                <h2 class="large-text fade-in-up">Spec Coding 是應對 AI<br>不確定性的必然選擇</h2>
+
+                <div class="body-text fade-in-up">
+                    <p class="mb-2">Stack Overflow 調查顯示開發者對 AI 的信任度下降（從 <span class="highlight-red">2023-2024 年的 70%</span> 降至 <span class="highlight-red">2025 年的 60%</span>），根本原因是 <strong>Vibe Coding</strong> 的不可預測性。</p>
+                </div>
+
+                <!-- ECharts 圖表 -->
+                <div class="chart-container fade-in" id="trust-chart"></div>
+
+                <div class="body-text fade-in-up">
+                    <p class="mb-2"><strong>Spec-Driven Development</strong> 透過明確的契約，將 AI 從「猜測你想要什麼」轉變為「按照明確指令執行」，這是唯一可擴展的協作模式。</p>
+                </div>
+
+                <div class="highlight-box fade-in-up">
+                    <p class="body-text" style="margin-bottom: 0;"><strong>關鍵洞察：</strong>規格不是約束 AI 的枷鎖，而是放大其能力的槓桿——有了清晰的目標，AI 才能發揮模式識別的優勢。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 第 3 頁：第 2 點 - 工具選型生命週期 ==================== -->
+        <div class="section" id="point2">
+            <div class="content-wrapper">
+                <h2 class="large-text fade-in-up">工具選型取決於專案生命週期<br>而非「哪個最強」</h2>
+
+                <div class="body-text fade-in-up">
+                    <p class="mb-3">新手常陷入「尋找最佳工具」的陷阱。實際上，不同階段需要不同的工具策略：</p>
+                </div>
+
+                <!-- 三階段時間線 -->
+                <div class="timeline fade-in">
+                    <div class="timeline-item fade-in-up">
+                        <div class="timeline-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-phase">0 → 1 階段</div>
+                            <div class="timeline-title">SpecKit</div>
+                            <div class="timeline-desc">在初期階段表現最佳，專注於快速驗證 MVP（最小可行產品），讓您能迅速將想法轉化為原型。</div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item fade-in-up">
+                        <div class="timeline-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-phase">1 → 10 階段</div>
+                            <div class="timeline-title">OpenSpec</div>
+                            <div class="timeline-desc">更適合產品穩定後的功能迭代管理，提供完整的協作與版本控制能力，支援團隊規模化開發。</div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item fade-in-up">
+                        <div class="timeline-icon">
+                            <i class="fas fa-cloud"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-phase">企業級</div>
+                            <div class="timeline-title">Kiro</div>
+                            <div class="timeline-desc">為重度雲原生用戶提供一體化解決方案，整合 CI/CD、監控與自動化部署，適合大型團隊的企業級需求。</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight-box fade-in-up">
+                    <p class="body-text" style="margin-bottom: 0;"><strong>實踐建議：</strong>初期用 SpecKit 快速驗證 MVP，穩定後遷移到 OpenSpec 管理功能迭代，大型團隊可考慮 Kiro 的企業級能力。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 第 4 頁：第 3 點 - 開發者價值轉向 ==================== -->
+        <div class="section" id="point3">
+            <div class="content-wrapper">
+                <h2 class="large-text fade-in-up">人類的價值從「寫程式碼」<br>轉向「定義問題與驗證品質」</h2>
+
+                <div class="body-text fade-in-up">
+                    <p class="mb-3">GitHub 和 AWS 的共同訊息是：開發者的核心工作正從「實作」(Implementation) 轉向「指導」(Steering) 和「驗證」(Verification)。</p>
+                </div>
+
+                <!-- 價值轉移對比卡片 -->
+                <div class="comparison-grid">
+                    <div class="comparison-card fade-in-up">
+                        <div class="comparison-icon">⏮️</div>
+                        <div class="comparison-period">過去</div>
+                        <div class="comparison-title">寫程式碼</div>
+                        <div class="comparison-desc">開發者的主要價值在於將需求轉換為可執行的程式碼，編程技能是核心競爭力。</div>
+                    </div>
+
+                    <div class="comparison-card fade-in-up">
+                        <div class="comparison-icon">▶️</div>
+                        <div class="comparison-period">現在</div>
+                        <div class="comparison-title">定義與驗證</div>
+                        <div class="comparison-desc">清晰定義需求、審查 AI 產出品質，需要更深的工程判斷力與架構思維。</div>
+                    </div>
+
+                    <div class="comparison-card fade-in-up">
+                        <div class="comparison-icon">⏭️</div>
+                        <div class="comparison-period">未來</div>
+                        <div class="comparison-title">工程判斷力</div>
+                        <div class="comparison-desc">只有理解底層邏輯的人，才能寫出讓 AI 產生高品質程式碼的規格。</div>
+                    </div>
+                </div>
+
+                <div class="body-text fade-in-up">
+                    <p class="mb-2">這不代表程式設計技能貶值，反而需要更深的工程判斷力——只有理解底層邏輯的人，才能寫出讓 AI 產生高品質程式碼的規格。</p>
+                </div>
+
+                <div class="highlight-box fade-in-up">
+                    <p class="body-text" style="margin-bottom: 0;"><strong>長期影響：</strong>未來十年，「能清晰定義需求並審查 AI 產出」的開發者，將比「只會寫程式碼」的開發者更具競爭力。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 第 5 頁：金句引言 ==================== -->
+        <div class="section" id="quote">
+            <div class="content-wrapper quote-section">
+                <div class="quote-icon fade-in">
+                    <i class="fas fa-quote-left"></i>
+                </div>
+                <div class="quote-text fade-in-up">
+                    規格不是約束 AI 的枷鎖，<br>而是放大其能力的槓桿
+                </div>
+                <div class="quote-author fade-in-up">
+                    —— 有了清晰的目標，AI 才能發揮模式識別的優勢
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 第 6 頁：CTA ==================== -->
+        <div class="section" id="cta">
+            <div class="content-wrapper cta-container">
+                <h2 class="large-text fade-in-up mb-2">開始你的 Spec-Driven 之旅</h2>
+                <p class="subtitle fade-in-up mb-3">與我們一起，重新定義開發者與 AI 的協作方式</p>
+                <a href="#" class="cta-button fade-in-up">加入我們</a>
+                <p class="cta-subtitle fade-in-up">一起探索軟體開發的新紀元</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ========== 外部 JS 依賴 ========== -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.1.2/fullpage.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+
+    <!-- ========== 內嵌 JavaScript ========== -->
+    <script>
+        // ==================== 1. fullpage.js 初始化 ====================
+        new fullpage('#fullpage', {
+            // 基礎設定
+            navigation: true,
+            navigationPosition: 'right',
+            navigationTooltips: ['開場', 'AI 信任度', '工具選型', '價值轉向', '核心洞察', '加入我們'],
+            showActiveTooltip: true,
+            scrollingSpeed: 1000,
+            autoScrolling: true,
+
+            // 滾動控制
+            scrollOverflow: true,
+            scrollBar: false,
+
+            // 動效觸發
+            onLeave: function(origin, destination, direction) {
+                const section = destination.item;
+
+                // 為所有動效元素設置遞增延遲
+                const fadeElements = section.querySelectorAll('.fade-in-up, .fade-in, .scale-in');
+                fadeElements.forEach((el, index) => {
+                    el.style.animationDelay = `${index * 0.15}s`;
+                });
+            },
+
+            // 載入完成後的回調
+            afterLoad: function(origin, destination, direction) {
+                // 如果是第 2 頁（圖表頁），初始化 ECharts
+                if (destination.index === 1) {
+                    setTimeout(initTrustChart, 300);
+                }
+            }
+        });
+
+        // ==================== 2. ECharts 信任度折線圖 ====================
+        function initTrustChart() {
+            const chartDom = document.getElementById('trust-chart');
+            if (!chartDom) return;
+
+            const chart = echarts.init(chartDom);
+
+            const option = {
+                backgroundColor: 'transparent',
+
+                // 標題
+                title: {
+                    text: '開發者對 AI 的信任度變化',
+                    left: 'center',
+                    top: 20,
+                    textStyle: {
+                        color: '#fff',
+                        fontSize: 18,
+                        fontWeight: 600
+                    }
+                },
+
+                // 網格
+                grid: {
+                    left: '10%',
+                    right: '10%',
+                    bottom: '15%',
+                    top: '25%',
+                    containLabel: true
+                },
+
+                // X 軸
+                xAxis: {
+                    type: 'category',
+                    data: ['2023-2024', '2025'],
+                    axisLine: {
+                        lineStyle: {
+                            color: 'rgba(255, 255, 255, 0.3)'
+                        }
+                    },
+                    axisLabel: {
+                        color: 'rgba(255, 255, 255, 0.8)',
+                        fontSize: 14,
+                        fontWeight: 500
+                    }
+                },
+
+                // Y 軸
+                yAxis: {
+                    type: 'value',
+                    min: 0,
+                    max: 100,
+                    axisLine: {
+                        lineStyle: {
+                            color: 'rgba(255, 255, 255, 0.3)'
+                        }
+                    },
+                    axisLabel: {
+                        color: 'rgba(255, 255, 255, 0.8)',
+                        fontSize: 12,
+                        formatter: '{value}%'
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                },
+
+                // 數據系列
+                series: [
+                    {
+                        name: '信任度',
+                        type: 'line',
+                        data: [70, 60],
+                        smooth: true,
+
+                        // 線條樣式
+                        lineStyle: {
+                            color: '#E31937',
+                            width: 4
+                        },
+
+                        // 區域填充
+                        areaStyle: {
+                            color: {
+                                type: 'linear',
+                                x: 0,
+                                y: 0,
+                                x2: 0,
+                                y2: 1,
+                                colorStops: [
+                                    { offset: 0, color: 'rgba(227, 25, 55, 0.4)' },
+                                    { offset: 1, color: 'rgba(227, 25, 55, 0.05)' }
+                                ]
+                            }
+                        },
+
+                        // 標記點
+                        itemStyle: {
+                            color: '#E31937',
+                            borderColor: '#fff',
+                            borderWidth: 3
+                        },
+
+                        // 標籤
+                        label: {
+                            show: true,
+                            position: 'top',
+                            color: '#E31937',
+                            fontSize: 20,
+                            fontWeight: 700,
+                            formatter: '{c}%'
+                        },
+
+                        // 平滑曲線
+                        symbol: 'circle',
+                        symbolSize: 12
+                    }
+                ],
+
+                // 提示框
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    borderColor: '#E31937',
+                    borderWidth: 1,
+                    textStyle: {
+                        color: '#fff'
+                    },
+                    formatter: function(params) {
+                        return `${params[0].name}<br/>信任度：<strong>${params[0].value}%</strong>`;
+                    }
+                },
+
+                // 動畫
+                animation: true,
+                animationDuration: 2000,
+                animationEasing: 'cubicOut'
+            };
+
+            chart.setOption(option);
+
+            // 響應式調整
+            window.addEventListener('resize', function() {
+                chart.resize();
+            });
+        }
+
+        // ==================== 3. CTA 按鈕點擊事件 ====================
+        document.querySelector('.cta-button').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('感謝您的興趣！此為示範頁面，實際連結請替換為您的目標 URL。');
+        });
+
+        // ==================== 4. 頁面載入完成後的初始化 ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ Spec-Driven Development 頁面已載入');
+            console.log('📊 使用技術：fullpage.js + ECharts + Aurora Gradient Design');
+        });
+    </script>
+</body>
+</html>
