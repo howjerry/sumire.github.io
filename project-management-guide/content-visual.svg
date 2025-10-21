@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="800" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="800" height="800" fill="white"/>
+
+  <!-- Project Triangle - Main Concept -->
+  <g id="project-triangle">
+    <!-- Main Triangle -->
+    <polygon points="400,150 650,550 150,550"
+             stroke="black"
+             stroke-width="4"
+             fill="none"
+             stroke-linejoin="miter"/>
+
+    <!-- Corner Circles (representing three constraints) -->
+    <circle cx="400" cy="150" r="20" fill="black"/>
+    <circle cx="650" cy="550" r="20" fill="black"/>
+    <circle cx="150" cy="550" r="20" fill="black"/>
+
+    <!-- Labels -->
+    <text x="400" y="120" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="black">TIME</text>
+    <text x="680" y="560" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="start" fill="black">COST</text>
+    <text x="120" y="560" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="end" fill="black">SCOPE</text>
+  </g>
+
+  <!-- Center Element - Balance Point -->
+  <g id="center-balance">
+    <!-- Center Circle -->
+    <circle cx="400" cy="400" r="60" fill="white" stroke="black" stroke-width="3"/>
+
+    <!-- Inner Circle -->
+    <circle cx="400" cy="400" r="40" fill="black"/>
+
+    <!-- Center Text -->
+    <text x="400" y="410" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="white">BALANCE</text>
+  </g>
+
+  <!-- Connecting Lines to Center -->
+  <g id="balance-lines" opacity="0.3">
+    <line x1="400" y1="150" x2="400" y2="340" stroke="black" stroke-width="2" stroke-dasharray="5,5"/>
+    <line x1="650" y1="550" x2="452" y2="435" stroke="black" stroke-width="2" stroke-dasharray="5,5"/>
+    <line x1="150" y1="550" x2="348" y2="435" stroke="black" stroke-width="2" stroke-dasharray="5,5"/>
+  </g>
+
+  <!-- Fourth Dimension - Customer Satisfaction -->
+  <g id="fourth-dimension">
+    <!-- Outer Ring -->
+    <circle cx="400" cy="400" r="280" fill="none" stroke="black" stroke-width="2" stroke-dasharray="10,5"/>
+
+    <!-- Customer Icon -->
+    <circle cx="400" cy="100" r="25" fill="white" stroke="black" stroke-width="2"/>
+    <text x="400" y="108" font-family="Arial, sans-serif" font-size="20" text-anchor="middle" fill="black">😊</text>
+    <text x="400" y="75" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="black">CUSTOMER</text>
+  </g>
+
+  <!-- Decorative Elements - Abstract Geometric Shapes -->
+  <g id="decorative-elements" opacity="0.1">
+    <!-- Top Right -->
+    <rect x="650" y="100" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+
+    <!-- Bottom Left -->
+    <circle cx="100" cy="700" r="40" fill="none" stroke="black" stroke-width="2"/>
+
+    <!-- Bottom Right -->
+    <polygon points="700,650 750,700 700,750 650,700" fill="none" stroke="black" stroke-width="2"/>
+  </g>
+
+  <!-- Project Management Symbols -->
+  <g id="pm-symbols" opacity="0.2">
+    <!-- Gantt Chart Symbol -->
+    <g transform="translate(50, 200)">
+      <rect x="0" y="0" width="60" height="10" fill="black"/>
+      <rect x="0" y="20" width="40" height="10" fill="black"/>
+      <rect x="0" y="40" width="50" height="10" fill="black"/>
+    </g>
+
+    <!-- Timeline Symbol -->
+    <g transform="translate(680, 200)">
+      <line x1="0" y1="25" x2="60" y2="25" stroke="black" stroke-width="2"/>
+      <circle cx="0" cy="25" r="5" fill="black"/>
+      <circle cx="30" cy="25" r="5" fill="black"/>
+      <circle cx="60" cy="25" r="5" fill="black"/>
+    </g>
+  </g>
+
+  <!-- Success Path - Arrow -->
+  <g id="success-path">
+    <path d="M 400 600 L 400 680" stroke="black" stroke-width="3" fill="none" marker-end="url(#arrowhead)"/>
+    <text x="400" y="710" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" fill="black">SUCCESS</text>
+  </g>
+
+  <!-- Arrow Marker Definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+      <polygon points="0,0 10,5 0,10" fill="black"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="400" y="760" font-family="Arial, sans-serif" font-size="28" font-weight="bold" text-anchor="middle" fill="black">PROJECT MANAGEMENT GOLDEN TRIANGLE</text>
+</svg>
